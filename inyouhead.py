@@ -52,6 +52,26 @@ def database():
     En.grid(row=1, column=1)
     lb1 = Label(selectWindow)
 
+    radio = IntVar()
+    
+    
+
+    def check():
+        if radio.get() and En.get() != '':
+            shelfFile = shelve.open('file_location')
+            vrs = os.getcwd() + '\\' + En.get() + '.db'
+            shelfFile['loc'] = vrs
+
+            fName = list(shelfFile.values())[0].split('\\')[-1].replace('.db', '')
+            mainlb1.config(text=f'Study Log  ~  Table Name - {fName}', font=('Times New Roman', 15, 'bold'), bg=main_clr,fg='white')
+            mainlb1.grid(row=0, column=0, sticky=W)
+            shelfFile.close()
+
+            stateOfBtN()
+        else:
+            mainlb1.config(text=f'Study Log  ~  Table Name ', font=('Times New Roman', 15, 'bold'), bg=main_clr,fg='white')
+            mainlb1.grid(row=0, column=0, sticky=W)
+
     def ok():
         z = [temp for temp in os.listdir() if temp.endswith('.db')]
 
@@ -74,8 +94,16 @@ def database():
 
     bt = Button(selectWindow, text=' Ok ', command=ok, font=('Comic Sans MS', 9))
     bt.grid(row=1, column=2, padx=10)
-    selectWindow.after(1000*60, selectWindow.destroy)
+    
+    def delOn():
+        if En.get() == '':
+            selectWindow.after(15000, selectWindow.destroy)
+        else:
+            selectWindow.after(1000*30, selectWindow.destroy)
+    selectWindow.after(10000, delOn)
 
+    c1 = Checkbutton(selectWindow, text='Set it as table name',variable=radio, onvalue=1, offvalue=0, command=check, font=14)
+    c1.grid(row=1,column=3, padx=10,ipady=10)
 
 def slt_table():
     selectWindow = Toplevel(root)
@@ -97,7 +125,6 @@ def slt_table():
             shelfFile = shelve.open('file_location')
             vrs = os.getcwd() + '\\' + out[radio.get() - 1] + '.db'
             shelfFile['loc'] = vrs
-
             fName = list(shelfFile.values())[0].split('\\')[-1].replace('.db', '')
             mainlb1.config(text=f'Study Log  ~  Table Name - {fName}', font=('Times New Roman', 15, 'bold'), bg=main_clr,fg='white')
             mainlb1.grid(row=0, column=0, sticky=W)
@@ -108,9 +135,15 @@ def slt_table():
         canvas = Canvas(selectWindow)
         scroll = Scrollbar(selectWindow, orient='vertical', command=canvas.yview)
         r, z = 3, 1
+        tTopic = tData().split("\\")[-1]
         for temp in range(len(out)):
-            label = Radiobutton(canvas, text=out[temp].replace('.db', ''), value=z, variable=radio, command=selection,
-                                font=12)
+            if out[temp] == tTopic.replace('.db',''):
+                label = Radiobutton(canvas, text=out[temp].replace('.db', ''), value=z, variable=radio, command=selection,
+                                    font=12)
+                label.select()
+            else:
+                label = Radiobutton(canvas, text=out[temp].replace('.db', ''), value=z, variable=radio, command=selection,
+                                    font=12)
             canvas.create_window(0, temp * 50, anchor='nw', window=label, height=50)
             r, z = r + 1, z + 1
 
@@ -123,10 +156,10 @@ def slt_table():
         selectWindow.after(1000 * secs, lambda: selectWindow.destroy())
 
     else:
-        selectWindow.geometry('500x300')
+        selectWindow.geometry('500x200')
         mainlb1.config(text=f'Study Log  ~  Table Name ', font=('Times New Roman', 15, 'bold'), bg=main_clr,fg='white')
         mainlb1.grid(row=0, column=0, sticky=W)
-        Label(selectWindow, text='No table was found', font=('Comic Sans MS', 15, 'bold')).grid(row=0, column=0,sticky=NW)
+        Label(selectWindow, text='No table was found in the current Directory', font=('Comic Sans MS', 15, 'bold'), fg='red').grid(row=0, column=0,sticky=NW)
         Label(selectWindow, text='Redirecting you to the New Table Window......',font=('Comic Sans MS', 15, 'bold')).grid(row=1, column=0, sticky=NW)
         selectWindow.after(2000, lambda: selectWindow.destroy())
         database()
@@ -889,7 +922,7 @@ f1.grid(row=2, column=6, rowspan=50, padx=20, columnspan=3)
 result_frame = Label(f1, text=f'This is the Result Area.', font=('Times New Roman', 14, 'bold'), borderwidth=2,
                      width=70, height=30, relief=GROOVE, bg='#F9D342')
 
-result_frame.grid(row=1, column=3)
+result_frame.grid(row=2, column=3)
 
 newSub = Button(root, text='Add a New Subject', command=newSubject, bg=btn_clr)
 inpData = Button(root, text='Inserting Data', command=add_one, bg=btn_clr)
@@ -906,8 +939,7 @@ except:
     tTopic = ''
 
 if tTopic != '':
-    mainlb1.config(text=f'  Study Log   ~ Table Name - {tTopic}', font=('Times New Roman', 15, 'bold'),
-                   bg=main_clr, fg='#FFFFFF')
+    mainlb1.config(text=f'  Study Log   ~ Table Name - {tTopic}', font=('Times New Roman', 15, 'bold'), bg=main_clr, fg='#FFFFFF')
 else:
     mainlb1.config(text='You Need to select a table.', font=14, bg='#CCF381', fg='red')
     stateOfBtD()
