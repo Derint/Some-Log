@@ -105,6 +105,30 @@ def database():
     c1 = Checkbutton(selectWindow, text='Set it as table name',variable=radio, onvalue=1, offvalue=0, command=check, font=14)
     c1.grid(row=1,column=3, padx=10,ipady=10)
 
+def tData():
+    oShelve = shelve.open('file_location')
+    print('Trying..............')
+    data = list(oShelve.values())[0]
+    oShelve.close()
+
+    for i in os.listdir():
+        if i == data.split('\\')[-1]:
+            return data
+    else:
+        print('!!!!!!!!! Table not found.......')
+        mainlb1.config(text=f'Study Log  ~  Table Name ', font=('Times New Roman', 15, 'bold'), bg=main_clr,fg='white')
+        mainlb1.grid(row=0, column=0, sticky=W)
+        stateOfBtD()
+
+        shell = shelve.open('file_location')
+        shell['loc'] = ''
+        data = list(shell.values())[0]
+        shell.close()
+
+        print(f'The Data from the Except is {data}')
+
+    return data
+
 def slt_table():
     selectWindow = Toplevel(root)
     selectWindow.title('Select Window')
@@ -115,6 +139,8 @@ def slt_table():
     for temp in a:
         if temp.endswith('.db') and temp.count('.')==1:
             out.append(temp.replace('.db', ''))
+
+    tTopic = tData().split("\\")[-1]
 
     if len(out) > 0:
         selectWindow.geometry('400x300')
@@ -135,8 +161,9 @@ def slt_table():
         canvas = Canvas(selectWindow)
         scroll = Scrollbar(selectWindow, orient='vertical', command=canvas.yview)
         r, z = 3, 1
-        tTopic = tData().split("\\")[-1]
+        
         for temp in range(len(out)):
+            print('The length of temp is greatehen tano1')
             if out[temp] == tTopic.replace('.db',''):
                 label = Radiobutton(canvas, text=out[temp].replace('.db', ''), value=z, variable=radio, command=selection,
                                     font=12)
@@ -144,6 +171,7 @@ def slt_table():
             else:
                 label = Radiobutton(canvas, text=out[temp].replace('.db', ''), value=z, variable=radio, command=selection,
                                     font=12)
+
             canvas.create_window(0, temp * 50, anchor='nw', window=label, height=50)
             r, z = r + 1, z + 1
 
@@ -231,7 +259,7 @@ def displaySubject():
         disSubList.grid(row=0, column=1, ipady=len(n_s) + 50)
 
     else:
-        tp2.config(text='!! No Subject were found !!', font=('Bahnschrift', 14, 'bold'), fg='red', bg='white')
+        tp2.config(text='   !! No Subject were found !!     ', font=('Bahnschrift', 14, 'bold'), fg='red', bg='white')
         tp2.grid(row=0, column=0)
 
     def disSubClose():
@@ -469,7 +497,7 @@ def show_data():
         main_close()
         resFrame()
 
-    vdbtn.config(text=' X ', command=showDClose)
+    vdbtn.config(text=' X ', command=showDClose, bg='red')
     vdbtn.grid(row=0, column=2)
 
 
@@ -845,30 +873,7 @@ def DelSubRow():
     nslb1.grid(row=0, column=3)
     delcl.config(text=' X ', command=close, bg='red', fg='white')
 
-
     delcl.grid(row=0, column=4, sticky=NW)
-
-
-def tData():
-    oShelve = shelve.open('file_location')
-    try:
-        data = list(oShelve.values())[0]
-        oShelve.close()
-
-        for i in os.listdir():
-            if i == data.split('\\')[-1]:
-                return data
-    except:
-        mainlb1.config(text=f'Study Log  ~  Table Name ', font=('Times New Roman', 15, 'bold'), bg=main_clr,fg='white')
-        mainlb1.grid(row=0, column=0, sticky=W)
-        stateOfBtD()
-
-        shell = shelve.open('file_location')
-        shell['loc'] = ''
-        data = list(shell.values())[0]
-        shell.close()
-
-        return data
 
 
 def main_close():
