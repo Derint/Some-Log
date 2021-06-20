@@ -54,20 +54,19 @@ def database():
 
     radio = IntVar()
 
+    def shelOpen():
+        shelfFile = shelve.open('file_location')
+        vrs = os.getcwd() + '\\' + En.get() + '.db'
+        shelfFile['loc'] = vrs
+        fName = list(shelfFile.values())[0].split('\\')[-1].replace('.db', '')
+        shelfFile.close()
+        return fName
+
     def check():
         print(f'the value of En is: {radio.get()} and the table name is {En.get()==""}')
 
-
-        if radio.get() and En.get() != '':
-            shelfFile = shelve.open('file_location')
-            vrs = os.getcwd() + '\\' + En.get() + '.db'
-            shelfFile['loc'] = vrs
-
-            fName = list(shelfFile.values())[0].split('\\')[-1].replace('.db', '')
-            mainlb1.config(text=f'Study Log  ~  Table Name - {fName}', font=('Times New Roman', 15, 'bold'), bg=main_clr,fg='white')
-            mainlb1.grid(row=0, column=0, sticky=W)
-            shelfFile.close()
-
+        if radio.get() and En.get() != '' and 1 <= len(En.get()) < 16 :
+            shelOpen()
             stateOfBtN()
 
     def ok():
@@ -75,13 +74,20 @@ def database():
 
         if len(En.get()) > 16:
             lb1.config(text='Length of the Table should be less than 16',fg='#EC4D37', font=('Comic Sans MS', 14), bg='white')
+            En.delete('0', 'end')
+
         elif En.get() + '.db' in z:
             lb1.config(text='Guess you need some memory pills 💊💊 ', fg='yellow', font=('Comic Sans MS', 14), bg='white')
+            En.delete('0', 'end')
 
-        elif En.get() != '' and En.get() is not None:
+        elif En.get() != '' and En.get() is not None and len(En.get()) < 16:
             tableName = En.get() + '.db'
 
             mainTable(tableName)
+
+            fName = shelOpen()
+            mainlb1.config(text=f'Study Log  ~  Table Name - {fName}', font=('Times New Roman', 15, 'bold'), bg=main_clr,fg='white')
+            mainlb1.grid(row=0, column=0, sticky=W)
 
             lb1.config(text=' ✔ Your New Table has been Added successfully', fg='green', font=('Comic Sans MS', 14), bg='white')
             selectWindow.after(3000, lambda: selectWindow.destroy())
@@ -89,6 +95,7 @@ def database():
             lb1.config(text=' ❌ Give the table a name', font=('Comic Sans MS', 14), bg='white', fg='red')
 
         lb1.grid(row=3, column=1, pady=10)
+
 
     bt = Button(selectWindow, text=' Ok ', command=ok, font=('Comic Sans MS', 9))
     bt.grid(row=1, column=2, padx=10)
@@ -148,6 +155,7 @@ def slt_table():
         def selection():
             shelfFile = shelve.open('file_location')
             vrs = os.getcwd() + '\\' + out[radio.get() - 1] + '.db'
+            shelfFile['loc'] = vrs
             shelfFile['loc'] = vrs
             fName = list(shelfFile.values())[0].split('\\')[-1].replace('.db', '')
             mainlb1.config(text=f'Study Log  ~  Table Name - {fName}', font=('Times New Roman', 15, 'bold'), bg=main_clr,fg='white')
@@ -533,8 +541,9 @@ def activitySearch():
 
     c.execute("SELECT * FROM log")
     items = c.fetchall()
-
+    entered_date.delete(0,END)
     aslb1.config(text='')
+
     if len(items) > 0:
         aslb1.config(text='\t\tActivity Search', font=('Lucida Console', 20, 'bold'), justify='center',bg='white', fg='black')
         aslb2.config(text='', bg='white')
