@@ -53,10 +53,11 @@ def database():
     lb1 = Label(selectWindow)
 
     radio = IntVar()
-    
-    
 
     def check():
+        print(f'the value of En is: {radio.get()} and the table name is {En.get()==""}')
+
+
         if radio.get() and En.get() != '':
             shelfFile = shelve.open('file_location')
             vrs = os.getcwd() + '\\' + En.get() + '.db'
@@ -68,9 +69,6 @@ def database():
             shelfFile.close()
 
             stateOfBtN()
-        else:
-            mainlb1.config(text=f'Study Log  ~  Table Name ', font=('Times New Roman', 15, 'bold'), bg=main_clr,fg='white')
-            mainlb1.grid(row=0, column=0, sticky=W)
 
     def ok():
         z = [temp for temp in os.listdir() if temp.endswith('.db')]
@@ -78,7 +76,7 @@ def database():
         if len(En.get()) > 16:
             lb1.config(text='Length of the Table should be less than 16',fg='#EC4D37', font=('Comic Sans MS', 14), bg='white')
         elif En.get() + '.db' in z:
-            lb1.config(text='Guess you need some memory pills 💊💊 ', fg='#EC4D37', font=('Comic Sans MS', 14), bg='white')
+            lb1.config(text='Guess you need some memory pills 💊💊 ', fg='yellow', font=('Comic Sans MS', 14), bg='white')
 
         elif En.get() != '' and En.get() is not None:
             tableName = En.get() + '.db'
@@ -90,31 +88,33 @@ def database():
         else:
             lb1.config(text=' ❌ Give the table a name', font=('Comic Sans MS', 14), bg='white', fg='red')
 
-        lb1.grid(row=2, column=1, pady=10)
+        lb1.grid(row=3, column=1, pady=10)
 
     bt = Button(selectWindow, text=' Ok ', command=ok, font=('Comic Sans MS', 9))
     bt.grid(row=1, column=2, padx=10)
     
     def delOn():
         if En.get() == '':
-            selectWindow.after(15000, selectWindow.destroy)
+            selectWindow.after(8000, selectWindow.destroy)
         else:
-            selectWindow.after(1000*30, selectWindow.destroy)
+            selectWindow.after(1000*20, selectWindow.destroy)
     selectWindow.after(10000, delOn)
 
     c1 = Checkbutton(selectWindow, text='Set it as table name',variable=radio, onvalue=1, offvalue=0, command=check, font=14)
-    c1.grid(row=1,column=3, padx=10,ipady=10)
+    c1.grid(row=2,column=1, padx=10,ipady=10)
+
 
 def tData():
-    oShelve = shelve.open('file_location')
-    print('Trying..............')
-    data = list(oShelve.values())[0]
-    oShelve.close()
+    try:
+        oShelve = shelve.open('file_location')
+        data = list(oShelve.values())[0]
+        oShelve.close()
 
-    for i in os.listdir():
-        if i == data.split('\\')[-1]:
-            return data
-    else:
+        for i in os.listdir():
+            if i == data.split('\\')[-1]:
+                return data
+
+    except:
         print('!!!!!!!!! Table not found.......')
         mainlb1.config(text=f'Study Log  ~  Table Name ', font=('Times New Roman', 15, 'bold'), bg=main_clr,fg='white')
         mainlb1.grid(row=0, column=0, sticky=W)
@@ -127,7 +127,7 @@ def tData():
 
         print(f'The Data from the Except is {data}')
 
-    return data
+        return data
 
 def slt_table():
     selectWindow = Toplevel(root)
@@ -137,10 +137,8 @@ def slt_table():
     a = os.listdir()
     out = []
     for temp in a:
-        if temp.endswith('.db') and temp.count('.')==1:
+        if temp.endswith('.db') and temp.count('.') == 1:
             out.append(temp.replace('.db', ''))
-
-    tTopic = tData().split("\\")[-1]
 
     if len(out) > 0:
         selectWindow.geometry('400x300')
@@ -162,25 +160,28 @@ def slt_table():
         scroll = Scrollbar(selectWindow, orient='vertical', command=canvas.yview)
         r, z = 3, 1
         
+        tTopic = tData()
+        tTopic = tTopic.split('\\')[-1].replace('.db','')
+
         for temp in range(len(out)):
-            print('The length of temp is greatehen tano1')
+            
             if out[temp] == tTopic.replace('.db',''):
                 label = Radiobutton(canvas, text=out[temp].replace('.db', ''), value=z, variable=radio, command=selection,
                                     font=12)
                 label.select()
+
             else:
                 label = Radiobutton(canvas, text=out[temp].replace('.db', ''), value=z, variable=radio, command=selection,
                                     font=12)
 
             canvas.create_window(0, temp * 50, anchor='nw', window=label, height=50)
             r, z = r + 1, z + 1
-
         canvas.configure(scrollregion=canvas.bbox('all'), yscrollcommand=scroll.set)
 
         canvas.grid(row=1, column=0)
-        if z > 7:
+        if z > 6:
             scroll.grid(row=1, column=1, sticky=N + S + W)
-        secs = 1 * 60
+        secs = 1 * 20
         selectWindow.after(1000 * secs, lambda: selectWindow.destroy())
 
     else:
@@ -189,8 +190,9 @@ def slt_table():
         mainlb1.grid(row=0, column=0, sticky=W)
         Label(selectWindow, text='No table was found in the current Directory', font=('Comic Sans MS', 15, 'bold'), fg='red').grid(row=0, column=0,sticky=NW)
         Label(selectWindow, text='Redirecting you to the New Table Window......',font=('Comic Sans MS', 15, 'bold')).grid(row=1, column=0, sticky=NW)
-        selectWindow.after(2000, lambda: selectWindow.destroy())
-        database()
+        selectWindow.after(3000, lambda: selectWindow.destroy())
+
+        selectWindow.after(2950, database)
 
 def Help():
     helpWindow = Toplevel(root)
@@ -296,6 +298,7 @@ def newSubject():
         lab1.grid_forget()
         lab2.grid_forget()
         nslb3.grid_forget()
+        nsbtn2.config(state=NORMAL)
 
     def det():
         a = False
@@ -328,7 +331,8 @@ def newSubject():
 
             nslb3.config(text='\t\tYou Data has been Recorded successfully...        ', font=('Yu Mincho', 14, 'bold'), bg='white', fg='black')
             nslb3.grid(row=4, column=0, pady=10, columnspan=3)
-            b1.after(3000, delss)
+            nsbtn2.config(state=DISABLED)
+            b1.after(2000, delss)
 
         lab1.grid(row=1, column=2, pady=10)
         lab2.grid(row=2, column=2, pady=10)
@@ -388,6 +392,7 @@ def add_one():
             tp2.grid_forget()
             tp3.grid_forget()
             aolb5.grid_forget()
+            b1.config(state=NORMAL)
 
         def det():
             da = False
@@ -416,8 +421,8 @@ def add_one():
 
                 aolb5.config(text='✔ Your data has been added succesfully.', font=14, bg='white',fg='black')
                 aolb5.grid(row=7, column=0, padx=30, pady=10)
-
-                b1.after(3000, delstt)
+                b1.config(state=DISABLED)
+                b1.after(2000, delstt)
             tp2.grid(row=3, column=1)
             tp3.grid(row=5, column=1)
 
