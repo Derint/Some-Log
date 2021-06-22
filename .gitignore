@@ -1,0 +1,9 @@
+*.bak
+*.dat
+*.dir
+*.txt
+/build/
+/__pycache__/
+/dist/
+*.spec
+*.db
