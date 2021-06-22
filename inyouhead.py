@@ -63,8 +63,6 @@ def database():
         return fName
 
     def check():
-        print(f'the value of En is: {radio.get()} and the table name is {En.get()==""}')
-
         if radio.get() and En.get() != '' and 1 <= len(En.get()) < 16 :
             shelOpen()
             stateOfBtN()
@@ -122,7 +120,6 @@ def tData():
                 return data
 
     except:
-        print('!!!!!!!!! Table not found.......')
         mainlb1.config(text=f'Study Log  ~  Table Name ', font=('Times New Roman', 15, 'bold'), bg=main_clr,fg='white')
         mainlb1.grid(row=0, column=0, sticky=W)
         stateOfBtD()
@@ -131,8 +128,6 @@ def tData():
         shell['loc'] = ''
         data = list(shell.values())[0]
         shell.close()
-
-        print(f'The Data from the Except is {data}')
 
         return data
 
@@ -523,12 +518,11 @@ def date_range(date1, date2):
 def oReturn():
     o = []
     start_dt = date(2021, 1, 1)
-    end_dt = date(2021, 12, 31)
+    end_dt = date(2030, 12, 31)
+
     for dt in date_range(start_dt, end_dt):
         o.append(dt.strftime("%d-%m-%y"))
-
     return o
-
 
 def activitySearch():
     tableName = tData()
@@ -562,13 +556,17 @@ def activitySearch():
         sb2.config(orient=VERTICAL, width=20)
 
         def search():
+            yr = datetime.now().strftime('-%y')
+
             ed = entered_date.get()
 
             if entered_date.get() == '':
                 ed = datetime.now().strftime('%d-%m-%y')
+            elif len(ed) == 5: 
+                ed = ed + yr
 
             out = []
-
+            
             for k, v in n_s.items():
                 res = [k]
                 for j in items:
@@ -596,8 +594,10 @@ def activitySearch():
 
             sb.config(command=actSList.xview)
             sb2.config(command=actSList.yview)
+
             if t:
                 actSList.grid_forget(), sb.grid_forget(), sb2.grid_forget()
+                
                 if ed in oReturn():
                     lab3.config(text=f'Looks like you have not done anything on {ed}', font=('Bahnschrift Light', 14), fg='black')
                 else:
@@ -608,8 +608,10 @@ def activitySearch():
             
             else:
                 lab3.grid_forget()
+
                 if m > 50:
                     sb.grid(row=3, column=0, sticky=W+E)
+
                 if i > 6:
                     sb2.grid(row=5,column=1,stick=N+W+S)
 
