@@ -7,8 +7,12 @@ import sqlite3
 from datetime import timedelta, date, datetime
 from os import listdir, getcwd
 from tkinter import *
+import smtplib
+from icecream import ic
+import socket
+from tkinter import messagebox
 
-
+ic.disable()
 def mainTable(tableName):
     conn = sqlite3.connect(tableName)
     c = conn.cursor()
@@ -205,6 +209,72 @@ def Help():
     helpWindow.after(10000, helpWindow.destroy)
     pass
 
+def connect():
+    IPaddress = socket.gethostbyname(socket.gethostname())
+    ic(IPaddress)
+    return IPaddress != "127.0.0.1"
+
+def send_feedback(name, email_id, comment):
+    smtp_object = smtplib.SMTP('smtp.gmail.com',587)
+    smtp_object.ehlo()
+    smtp_object.starttls()
+
+    email = 'rebellocleophas731@gmail.com'
+    passoword = 'nnhnfgqjpttyzaqo'
+    smtp_object.login(email,passoword)
+    from_address = email
+    subject = 'Customer FeedBack'
+    message = 'Name: ' + name + '\nEmail Address : ' + email_id + '\nComment : '+ comment
+
+    Body=f"""Subject:{subject}
+
+    {message}
+    """
+    smtp_object.sendmail(from_address,from_address,Body)
+    smtp_object.quit()
+
+def feedback():
+
+    fback_window = Toplevel(root)
+    fback_window.title(" FeedBack Window ")
+    fback_window.geometry('550x400')
+
+    Label(fback_window, text = ' FeedBack Form ', justify='center', font = ('Comic Sans MS',20,'bold')).grid(row=0,column=1)
+    Label(fback_window, text = ' Name ', font=('Comic Sans MS', 14)).grid(row=1, column=0, padx = 10, pady=10)
+    Label(fback_window, text = ' Email Address ', font=('Comic Sans MS', 14)).grid(row=2, column=0, padx =10, pady=10)
+    Label(fback_window, text = ' Comment ', font=('Comic Sans MS', 14)).grid(row=3, column=0, padx=10, pady=10)
+
+    name = StringVar(); email_id = StringVar()
+    n = Entry(fback_window, textvariable = name, width=30)
+    e = Entry(fback_window, textvariable = email_id, width=30)
+
+    n.grid(row=1,column=1,pady=10, ipady=5)
+    e.grid(row=2, column=1, pady = 10, ipady=5)
+
+    c = Text(fback_window, height = 10, width=40)
+    c.grid(row=3, column= 1, pady=15, padx=5, columnspan = 2)
+
+    n.insert(0, 'Your Name')
+    e.insert(0, 'user_@domain.com')
+    c.insert('1.0',' // Your comment.')
+
+    def submit():
+        comment = c.get("1.0", END)
+ 
+        if connect():
+            send_feedback(name.get(), email_id.get(), comment)
+            messagebox.showinfo('Feedback Window', 'Your feedback has been submitted.')
+
+            n.delete(0,END)
+            e.delete(0,END)
+            c.delete("1.0", END)
+        else:
+            messagebox.showerror("Connection Error", " Check your Internet Connection. ")
+
+    b1 = Button(fback_window, text = ' Submit ', command = submit)
+    b1.grid(row=4, column=1)
+
+    
 def stateOfBtN():
     newSub.config(state=NORMAL)
     inpData.config(state=NORMAL)
@@ -920,6 +990,9 @@ def resFrame():
 
     result_frame.grid(row=1, column=3)
 
+
+comment = ''
+
 root = Tk()
 root.title('Study Log')
 w, h = 1200, 800
@@ -933,6 +1006,7 @@ menubar = Menu(root, borderwidth=3, bg="#20232A")
 menubar.add_command(label=' New Table ', command=database)
 menubar.add_command(label=' Select Table ', command=slt_table)
 menubar.add_command(label=' Help ', command=Help)
+menubar.add_command(label=' FeedBack ', command=feedback)
 menubar.add_command(label='Close', command=root.quit)
 
 root.config(menu=menubar, relief=GROOVE, bg=main_clr)
