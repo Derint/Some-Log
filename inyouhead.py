@@ -1,18 +1,14 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import os
-import shelve
-import sqlite3
+import os, shelve, sqlite3, smtplib
 from datetime import timedelta, date, datetime
 from os import listdir, getcwd
 from tkinter import *
-import smtplib
-from icecream import ic
 import socket
 from tkinter import messagebox
 
-ic.disable()
+
 def mainTable(tableName):
     conn = sqlite3.connect(tableName)
     c = conn.cursor()
@@ -211,7 +207,6 @@ def Help():
 
 def connect():
     IPaddress = socket.gethostbyname(socket.gethostname())
-    ic(IPaddress)
     return IPaddress != "127.0.0.1"
 
 def send_feedback(name, email_id, comment):
@@ -224,7 +219,9 @@ def send_feedback(name, email_id, comment):
     smtp_object.login(email,passoword)
     from_address = email
     subject = 'Customer FeedBack'
-    message = 'Name: ' + name + '\nEmail Address : ' + email_id + '\nComment : '+ comment
+    name = name.replace(' ','_')
+    comment = comment.replace(' ','_')
+    message = 'Name:_' + name + '<<::>>Email_Address:_' + email_id + '<<::>>Comment:_'+ comment
 
     Body=f"""Subject:{subject}
 
@@ -264,15 +261,13 @@ def feedback():
         if connect():
             send_feedback(name.get(), email_id.get(), comment)
             messagebox.showinfo('Feedback Window', 'Your feedback has been submitted.')
-
-            n.delete(0,END)
-            e.delete(0,END)
-            c.delete("1.0", END)
+            fback_window.after(1000, fback_window.destroy)
         else:
             messagebox.showerror("Connection Error", " Check your Internet Connection. ")
 
     b1 = Button(fback_window, text = ' Submit ', command = submit)
     b1.grid(row=4, column=1)
+    fback_window.after(1000  * 60 * 4, fback_window.destroy)
 
     
 def stateOfBtN():
@@ -366,16 +361,11 @@ def newSubject():
     shortSub.grid(row=2, column=1, pady=10, padx=50, sticky=NE)
 
     def delss():
-        subName.delete(0,END)
-        shortSub.delete(0,END)
-        lab1.grid_forget()
-        lab2.grid_forget()
-        nslb3.grid_forget()
-        nsbtn2.config(state=NORMAL)
+        subName.delete(0,END), shortSub.delete(0,END), lab1.grid_forget()
+        lab2.grid_forget(), nslb3.grid_forget(), nsbtn2.config(state=NORMAL)
 
     def det():
-        a = False
-        b = False
+        a,b = False,False
 
         if subName.get() not in n_s.values() and subName.get() != '':
             lab1.config(text=' ✔ ', fg='green', bg='white', font=12)
@@ -459,13 +449,8 @@ def add_one():
         aolb4.grid(row=5, column=0, sticky=NW, pady=10)
 
         def delstt():
-            sub.delete(0,END)
-            topic.delete(0,END)
-            time.delete(0,END)
-            tp2.grid_forget()
-            tp3.grid_forget()
-            aolb5.grid_forget()
-            b1.config(state=NORMAL)
+            sub.delete(0,END), topic.delete(0,END), time.delete(0,END), tp2.grid_forget()
+            tp3.grid_forget(), aolb5.grid_forget(), b1.config(state=NORMAL)
 
         def det():
             da = False
@@ -579,11 +564,9 @@ def show_data():
     vdbtn.grid(row=0, column=2)
 
 
-
 def date_range(date1, date2):
     for n in range(int((date2 - date1).days) + 1):
         yield date1 + timedelta(n)
-
 
 def oReturn():
     o = []
@@ -912,7 +895,6 @@ def DelSubRow():
                                     dellb3.grid(row=8, column=0, sticky=NW, pady=15)
 
                                     def yes():
-
                                         c.execute("DELETE from log WHERE rowid = (?)", (Id.get(),))
                                         c.execute("INSERT INTO delete_logs VALUES (?,?,?)", (subj.get(), item[1], item[2]))
                                         connection.commit()
