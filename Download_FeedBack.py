@@ -11,8 +11,8 @@ em = re.compile(r'(?<=Email Address:).*?(?=\s)')
 c = re.compile(r'(?<=Comment:).*?(?=\s)')
 
 
-user = 'rebellocleophas731@gmail.com'
-password = 'nnhnfgqjpttyzaqo'
+user = 'youremail@test.com'
+password = 'yourpassword'
 m = imaplib.IMAP4_SSL("imap.gmail.com", 993)
 m.login(user,password)
 m.select('"inbox"')
