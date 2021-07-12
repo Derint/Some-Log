@@ -214,8 +214,8 @@ def send_feedback(name, email_id, comment):
     smtp_object.ehlo()
     smtp_object.starttls()
 
-    email = 'rebellocleophas731@gmail.com'
-    passoword = 'nnhnfgqjpttyzaqo'
+    email = 'youremail@test.com'
+    passoword = 'yourpassowordhere'
     smtp_object.login(email,passoword)
     from_address = email
     subject = 'Customer FeedBack'
