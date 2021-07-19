@@ -7,7 +7,7 @@ from os import listdir, getcwd
 from tkinter import *
 import socket
 from tkinter import messagebox
-
+from tkinter import ttk
 
 def mainTable(tableName):
     conn = sqlite3.connect(tableName)
@@ -367,35 +367,40 @@ def newSubject():
     def det():
         a,b = False,False
 
-        if subName.get() not in n_s.values() and subName.get() != '':
-            lab1.config(text=' ✔ ', fg='green', bg='white', font=12)
-            a = True
-        else:
-            if subName.get() == '':
-                lab1.config(text='Subject Name cannot be empty.', fg='red', bg='white')
+        if len(subName.get()) <= 12:
+            
+            if subName.get() not in n_s.values() and subName.get() != '':
+                lab1.config(text=' ✔ ', fg='green', bg='white', font=12)
+                a = True
             else:
-                lab1.config(text=f'!! {subName.get()} is already used. ', fg='red', bg='white')
+                if subName.get() == '':
+                    lab1.config(text='Subject Name cannot be empty.', fg='red', bg='white')
+                else:
+                    lab1.config(text=f'!! {subName.get()} is already used. ', fg='red', bg='white')
 
-        if shortSub.get() not in n_s.keys() and shortSub.get() != '':
-            lab2.config(text=' ✔ ', bg='white', fg='green', font=12)
-            b = True
-        else:
-            if shortSub.get() == '':
-                lab2.config(text='Shortcut Key cannot be empty.',fg='red', bg='white')
+            if shortSub.get() not in n_s.keys() and shortSub.get() != '':
+                lab2.config(text=' ✔ ', bg='white', fg='green', font=12)
+                b = True
             else:
-                lab2.config(text=f'*You have already used this key for {n_s[shortSub.get()]} subject  ', fg='red', bg='white')
+                if shortSub.get() == '':
+                    lab2.config(text='Shortcut Key cannot be empty.',fg='red', bg='white')
+                else:
+                    lab2.config(text=f'*You have already used this key for {n_s[shortSub.get()]} subject  ', fg='red', bg='white')
 
-        if a and b:
-            conn = sqlite3.connect(tableName)
-            c = conn.cursor()
-            c.execute("INSERT INTO sub_log VALUES (?,?)", (shortSub.get(), subName.get()))
-            conn.commit()
-            conn.close()
+            if a and b:
+                conn = sqlite3.connect(tableName)
+                c = conn.cursor()
+                c.execute("INSERT INTO sub_log VALUES (?,?)", (shortSub.get(), subName.get()))
+                conn.commit()
+                conn.close()
 
-            nslb3.config(text='\t\tYou Data has been Recorded successfully...        ', font=('Yu Mincho', 14, 'bold'), bg='white', fg='black')
-            nslb3.grid(row=4, column=0, pady=10, columnspan=3)
-            nsbtn2.config(state=DISABLED)
-            b1.after(2000, delss)
+                nslb3.config(text='\t\tYou Data has been Recorded successfully...        ', font=('Yu Mincho', 14, 'bold'), bg='white', fg='black')
+                nslb3.grid(row=4, column=0, pady=10, columnspan=3)
+                nsbtn2.config(state=DISABLED)
+                b1.after(2000, delss)
+
+        else:
+            lab1.config(text=' Subject Name cannot be greater than 12', fg='red', bg='white',font=14)
 
         lab1.grid(row=1, column=2, pady=10)
         lab2.grid(row=2, column=2, pady=10)
@@ -517,41 +522,60 @@ def show_data():
 
     connection = sqlite3.connect(tableName)
     cursor = connection.cursor()
-    cursor.execute("SELECT rowid,* FROM log")
+    cursor.execute("SELECT * FROM log")
     items = cursor.fetchall()
 
     if len(items) > 0:
-        n = 140
+        listBox.delete(*listBox.get_children())
         sb.config(orient=VERTICAL)
-        showDList.delete('0', 'end')
-        showDList.config(yscrollcommand=sb.set, font=('Arial', 12, 'bold'))
 
-        a = 'Subject'.center(max([len(i) for i in subjects().values()]))
-        showDList.insert(END, ' +' + '-' * n)
-        showDList.insert(END, f"  |         TimeStamp            |     {a}  |  Time     |            Topic")
-        showDList.insert(END, ' +' + '-' * n)
+        style = ttk.Style()
 
-        MaX = []
-        for item in items:
-            subject = item[2].ljust(max([len(i) for i in subjects().values()])+5)
-            Time = str(item[4]).center(15)
-            Topic = item[3]
-            showDList.insert(END, f'  |{item[1].center(25)}|  {subject}| {Time}|  {Topic.capitalize()}')
-            showDList.insert(END, ' +' + '-' * n)
+        # Data
+        style.configure("mystyle.Treeview",
+                font=('Calibri', 15),
+                fieldbackground='white'
+                )
 
-            MaX.append(len(Topic))
+        style.theme_use("default")
+        style.map('Treeview',background=[('selected','black')])
+        style.map('Treeview.Heading', font=[(None, 16)])
+        
+        lab1.config(text="Table Data", font=("Arial",20), bg='white')
+        lab1.grid(row=0, columnspan=3)
+    
+        listBox.config(show='headings',style="mystyle.Treeview", height=30)
+        listBox["column"] = ('TimeStamp', 'Subject', 'Time', 'Topic')
 
-        if len(MaX) != 0:
-            m = max(MaX)
-        else:
-            m = 0
+        listBox.column("TimeStamp", width=185)
+        listBox.column("Subject", width=150)
+        listBox.column("Time", width=80)
+        listBox.column("Topic", width=420)
+        listBox['show'] = 'headings'
+        listBox.column("#3", stretch=True)
+        listBox.grid(row=1, column=2)
 
-        showDList.config(width=m + int(m * 0.3) + 50)
-        showDList.grid(row=1, column=2, ipady=250)
-        sb.config(command=showDList.yview)
+        cols = ('TimeStamp', 'Subject', 'Time', 'Topic')
+        for col in cols:
+            listBox.heading(col,text=col)
 
-        if len(items) > 15: 
-            sb.grid(row=1, column=4, sticky=N + S + W)
+        # Adding Strips
+        listBox.tag_configure('odd', background='white', font=('Calibri', 14))
+        listBox.tag_configure('even', background='light green',font=('Calibri', 14))
+        count = 0
+
+        for tstamp, subject, topic, time in items:
+            if count % 2 == 0:
+                listBox.insert("","end",values=(tstamp.center(25), subject.center(15), str(time).center(16), (topic).ljust(10)), tags=('even',))
+            else:
+                listBox.insert("","end",values=(tstamp.center(25), subject.center(15), str(time).center(16), (topic).ljust(10)), tags=('odd',))
+            count += 1
+
+        listBox.config(yscrollcommand=sb.set)
+        sb.config(command=listBox.yview)
+
+        if count >= 30:
+            sb.grid(row=1,column=3, sticky=N+W+S, padx=15, pady = 10)
     else:
         aslb1.config(text='!!! No Data was found. !!! ', font=('SimSun', 15), bg='white', fg='red')
         aslb1.grid(row=0, column=0)
@@ -561,7 +585,7 @@ def show_data():
         resFrame()
 
     vdbtn.config(text=' X ', command=showDClose, bg='red')
-    vdbtn.grid(row=0, column=2)
+    vdbtn.grid(row=0, column=3)
 
 
 def date_range(date1, date2):
@@ -813,6 +837,7 @@ def DelSubRow():
                         deln.grid(row=r + 4, column=0, sticky=NE, pady=10)
 
                     except Exception as e:
+                        print(e)
                         dellb.grid_forget(),dellb2.grid_forget(),dellb3.grid_forget(),dely.grid_forget(),deln.grid_forget()
                         tp4.config(text=f'The Subject is not defined.', font=('Bahnschrift', 14, 'bold'), bg='white')
                         tp4.grid(row=9, column=0)
@@ -965,6 +990,7 @@ def main_close():
     aolb5.grid_forget(), tp2.grid_forget(), tp3.grid_forget(), sub.grid_forget(), topic.grid_forget()
     time.grid_forget(), b1.grid_forget(), aobtn1.grid_forget(), addDList.grid_forget(), disSubList.grid_forget()
 
+    listBox.grid_forget()
 
 def resFrame():
     result_frame.config(text=f'This is the Result Area.', font=('Times New Roman', 14, 'bold'), borderwidth=2,
@@ -1041,6 +1067,8 @@ nslb3 = Label(f1); aolbl1 = Label(f1); aolb2 = Label(f1); aolb3 = Label(f1); aol
 
 delrlist4 = Listbox(f1); delrlist1 = Listbox(f1); delrlist3 = Listbox(f1); myList = Listbox(f1); disSubList = Listbox(f1)
 addDList = Listbox(f1); actSList = Listbox(f1); showDList = Listbox(f1)
+
+listBox= ttk.Treeview(f1)
 
 sb = Scrollbar(f1); sb2 = Scrollbar(f1)
 
