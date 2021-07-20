@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import os, shelve, sqlite3, smtplib
+import os, shelve, sqlite3, smtplib, socket
 from datetime import timedelta, date, datetime
 from os import listdir, getcwd
 from tkinter import *
-import socket
 from tkinter import messagebox
 from tkinter import ttk
+from icecream import ic
 
 def mainTable(tableName):
     conn = sqlite3.connect(tableName)
@@ -50,21 +50,25 @@ def database():
     Label(selectWindow, text='  New table name: ', font=('Comic Sans MS', 14)).grid(row=1, column=0)
     En = Entry(selectWindow)
     En.grid(row=1, column=1)
-    lb1 = Label(selectWindow)
 
+    lb1 = Label(selectWindow)
     radio = IntVar()
 
     def shelOpen():
         shelfFile = shelve.open('file_location')
         vrs = os.getcwd() + '\\' + En.get() + '.db'
+        ic(vrs)
         shelfFile['loc'] = vrs
         fName = list(shelfFile.values())[0].split('\\')[-1].replace('.db', '')
-        shelfFile.close()
+        ic(fName)
         return fName
+
 
     def check():
         if radio.get() and En.get() != '' and 1 <= len(En.get()) < 16 :
-            shelOpen()
+            fName = shelOpen()
+            mainlb1.config(text=f'Study Log  ~  Table Name - {fName}', font=('Times New Roman', 15, 'bold'), bg=main_clr,fg='white')
+            mainlb1.grid(row=0, column=0, sticky=W)
             stateOfBtN()
 
     def ok():
@@ -80,15 +84,11 @@ def database():
 
         elif En.get() != '' and En.get() is not None and len(En.get()) < 16:
             tableName = En.get() + '.db'
-
+            # Creating the table
             mainTable(tableName)
-
-            fName = shelOpen()
-            mainlb1.config(text=f'Study Log  ~  Table Name - {fName}', font=('Times New Roman', 15, 'bold'), bg=main_clr,fg='white')
-            mainlb1.grid(row=0, column=0, sticky=W)
-
             lb1.config(text=' ✔ Your New Table has been Added successfully', fg='green', font=('Comic Sans MS', 14), bg='white')
             selectWindow.after(3000, lambda: selectWindow.destroy())
+            stateOfBtN()
         else:
             lb1.config(text=' ❌ Give the table a name', font=('Comic Sans MS', 14), bg='white', fg='red')
 
@@ -120,7 +120,7 @@ def tData():
                 return data
 
     except:
-        mainlb1.config(text=f'Study Log  ~  Table Name ', font=('Times New Roman', 15, 'bold'), bg=main_clr,fg='white')
+        mainlb1.config(text='You Need to select a table.', font=14, bg='#CCF381', fg='red')
         mainlb1.grid(row=0, column=0, sticky=W)
         stateOfBtD()
 
@@ -151,20 +151,18 @@ def slt_table():
             shelfFile = shelve.open('file_location')
             vrs = os.getcwd() + '\\' + out[radio.get() - 1] + '.db'
             shelfFile['loc'] = vrs
-            shelfFile['loc'] = vrs
             fName = list(shelfFile.values())[0].split('\\')[-1].replace('.db', '')
             mainlb1.config(text=f'Study Log  ~  Table Name - {fName}', font=('Times New Roman', 15, 'bold'), bg=main_clr,fg='white')
             mainlb1.grid(row=0, column=0, sticky=W)
             shelfFile.close()
-
             stateOfBtN()
 
         canvas = Canvas(selectWindow)
         scroll = Scrollbar(selectWindow, orient='vertical', command=canvas.yview)
         r, z = 3, 1
         
-        tTopic = tData()
-        tTopic = tTopic.split('\\')[-1].replace('.db','')
+
+        tTopic = tData().split('\\')[-1].replace('.db','')
 
         for temp in range(len(out)):
             
@@ -189,7 +187,7 @@ def slt_table():
 
     else:
         selectWindow.geometry('500x200')
-        mainlb1.config(text=f'Study Log  ~  Table Name ', font=('Times New Roman', 15, 'bold'), bg=main_clr,fg='white')
+        mainlb1.config(text='You Need to select a table.', font=('Times New Roman', 15, 'bold'), bg='#CCF381', fg='red')
         mainlb1.grid(row=0, column=0, sticky=W)
         Label(selectWindow, text='No table was found in the current Directory', font=('Comic Sans MS', 15, 'bold'), fg='red').grid(row=0, column=0,sticky=NW)
         Label(selectWindow, text='Redirecting you to the New Table Window......',font=('Comic Sans MS', 15, 'bold')).grid(row=1, column=0, sticky=NW)
@@ -367,8 +365,7 @@ def newSubject():
     def det():
         a,b = False,False
 
-        if len(subName.get()) <= 12:
-            
+        if len(subName.get()) <= 18:
             if subName.get() not in n_s.values() and subName.get() != '':
                 lab1.config(text=' ✔ ', fg='green', bg='white', font=12)
                 a = True
@@ -377,30 +374,29 @@ def newSubject():
                     lab1.config(text='Subject Name cannot be empty.', fg='red', bg='white')
                 else:
                     lab1.config(text=f'!! {subName.get()} is already used. ', fg='red', bg='white')
+        else:
+            lab1.config(text=' Subject Name cannot be greater than 18', fg='red', bg='white',font=14)
 
-            if shortSub.get() not in n_s.keys() and shortSub.get() != '':
+        if shortSub.get() not in n_s.keys() and shortSub.get() != '':
                 lab2.config(text=' ✔ ', bg='white', fg='green', font=12)
                 b = True
-            else:
-                if shortSub.get() == '':
-                    lab2.config(text='Shortcut Key cannot be empty.',fg='red', bg='white')
-                else:
-                    lab2.config(text=f'*You have already used this key for {n_s[shortSub.get()]} subject  ', fg='red', bg='white')
-
-            if a and b:
-                conn = sqlite3.connect(tableName)
-                c = conn.cursor()
-                c.execute("INSERT INTO sub_log VALUES (?,?)", (shortSub.get(), subName.get()))
-                conn.commit()
-                conn.close()
-
-                nslb3.config(text='\t\tYou Data has been Recorded successfully...        ', font=('Yu Mincho', 14, 'bold'), bg='white', fg='black')
-                nslb3.grid(row=4, column=0, pady=10, columnspan=3)
-                nsbtn2.config(state=DISABLED)
-                b1.after(2000, delss)
-
         else:
-            lab1.config(text=' Subject Name cannot be greater than 12', fg='red', bg='white',font=14)
+            if shortSub.get() == '':
+                lab2.config(text='Shortcut Key cannot be empty.',fg='red', bg='white')
+            else:
+                lab2.config(text=f'*You have already used this key for {n_s[shortSub.get()]} subject  ', fg='red', bg='white')
+
+        if a and b:
+            conn = sqlite3.connect(tableName)
+            c = conn.cursor()
+            c.execute("INSERT INTO sub_log VALUES (?,?)", (shortSub.get(), subName.get()))
+            conn.commit()
+            conn.close()
+
+            nslb3.config(text='\t\tYou Data has been Recorded successfully...        ', font=('Yu Mincho', 14, 'bold'), bg='white', fg='black')
+            nslb3.grid(row=4, column=0, pady=10, columnspan=3)
+            nsbtn2.config(state=DISABLED)
+            b1.after(2000, delss)
 
         lab1.grid(row=1, column=2, pady=10)
         lab2.grid(row=2, column=2, pady=10)
@@ -414,6 +410,7 @@ def newSubject():
 
     nsbtn.config(text=' Close ', command=newSubClose)
     nsbtn.grid(row=3, column=1, pady=10)
+
 
 
 def add_one():
@@ -511,10 +508,7 @@ def add_one():
     aobtn1.config(text=' X ', command=addSubClose,bg='red')
     aobtn1.grid(row=0, column=1, padx=30,ipady=5,ipadx=10,pady=10)
 
-
-
 def show_data():
-    subjects()
     tableName = tData()
     main_close()
 
@@ -531,7 +525,7 @@ def show_data():
 
         style = ttk.Style()
 
-        # Data
+        # Styling the recorded data
         style.configure("mystyle.Treeview",
                 font=('Calibri', 15),
                 fieldbackground='white'
@@ -541,18 +535,17 @@ def show_data():
         style.map('Treeview',background=[('selected','black')])
         style.map('Treeview.Heading', font=[(None, 16)])
         
-        lab1.config(text="Table Data", font=("Arial",20), bg='white')
+        lab1.config(text="Table Data", font=("Arial",20), bg='white', fg='black')
         lab1.grid(row=0, columnspan=3)
     
         listBox.config(show='headings',style="mystyle.Treeview", height=30)
         listBox["column"] = ('TimeStamp', 'Subject', 'Time', 'Topic')
 
         listBox.column("TimeStamp", width=185)
-        listBox.column("Subject", width=150)
+        listBox.column("Subject", width=160)
         listBox.column("Time", width=80)
         listBox.column("Topic", width=420)
-        listBox['show'] = 'headings'
-        listBox.column("#3", stretch=True)
+
         listBox.grid(row=1, column=2)
 
         cols = ('TimeStamp', 'Subject', 'Time', 'Topic')
@@ -566,9 +559,9 @@ def show_data():
 
         for tstamp, subject, topic, time in items:
             if count % 2 == 0:
-                listBox.insert("","end",values=(tstamp.center(25), subject.center(15), str(time).center(16), (topic).ljust(10)), tags=('even',))
+                listBox.insert("","end",values=(tstamp.center(25), subject.center(15), str(time).center(16), (topic).ljust(10)), tags=('even',), iid=count)
             else:
-                listBox.insert("","end",values=(tstamp.center(25), subject.center(15), str(time).center(16), (topic).ljust(10)), tags=('odd',))
+                listBox.insert("","end",values=(tstamp.center(25), subject.center(15), str(time).center(16), (topic).ljust(10)), tags=('odd',), iid=count)
             count += 1
 
         listBox.config(yscrollcommand=sb.set)
@@ -585,7 +578,7 @@ def show_data():
         resFrame()
 
     vdbtn.config(text=' X ', command=showDClose, bg='red')
-    vdbtn.grid(row=0, column=3)
+    vdbtn.grid(row=0, column=3, padx = 10, pady=10, ipady=5, ipadx=5)
 
 
 def date_range(date1, date2):
@@ -708,7 +701,7 @@ def activitySearch():
         resFrame()
 
     asbtn.config(text=' X ', command=actSerClose, bg='red')
-    asbtn.grid(row=0, column=5, padx=10,pady=5)
+    asbtn.grid(row=0, column=5, padx=10,pady=10)
 
 def Updatesub():
     table_name = tData()
@@ -837,7 +830,6 @@ def DelSubRow():
                         deln.grid(row=r + 4, column=0, sticky=NE, pady=10)
 
                     except Exception as e:
-                        print(e)
                         dellb.grid_forget(),dellb2.grid_forget(),dellb3.grid_forget(),dely.grid_forget(),deln.grid_forget()
                         tp4.config(text=f'The Subject is not defined.', font=('Bahnschrift', 14, 'bold'), bg='white')
                         tp4.grid(row=9, column=0)
@@ -966,7 +958,7 @@ def DelSubRow():
     nslb1.grid(row=0, column=3)
     delcl.config(text=' X ', command=close, bg='red', fg='white')
 
-    delcl.grid(row=0, column=4, sticky=NW)
+    delcl.grid(row=0, column=4, sticky=NW, padx= 10, pady = 10)
 
 
 def main_close():
@@ -981,7 +973,7 @@ def main_close():
 
     sb.grid_forget(), vdbtn.grid_forget()
 
-    disSubBtn.grid_forget()
+    disSubBtn.grid_forget(), listBox.grid_forget()
 
     nslb1.grid_forget(), nslb2.grid_forget(), nslb3.grid_forget(), subName.grid_forget(), shortSub.grid_forget()
     lab1.grid_forget(), lab2.grid_forget(), nsbtn.grid_forget(), nsbtn2.grid_forget()
@@ -990,7 +982,6 @@ def main_close():
     aolb5.grid_forget(), tp2.grid_forget(), tp3.grid_forget(), sub.grid_forget(), topic.grid_forget()
     time.grid_forget(), b1.grid_forget(), aobtn1.grid_forget(), addDList.grid_forget(), disSubList.grid_forget()
 
-    listBox.grid_forget()
 
 def resFrame():
     result_frame.config(text=f'This is the Result Area.', font=('Times New Roman', 14, 'bold'), borderwidth=2,
@@ -1068,10 +1059,9 @@ nslb3 = Label(f1); aolbl1 = Label(f1); aolb2 = Label(f1); aolb3 = Label(f1); aol
 delrlist4 = Listbox(f1); delrlist1 = Listbox(f1); delrlist3 = Listbox(f1); myList = Listbox(f1); disSubList = Listbox(f1)
 addDList = Listbox(f1); actSList = Listbox(f1); showDList = Listbox(f1)
 
-listBox= ttk.Treeview(f1)
-
 sb = Scrollbar(f1); sb2 = Scrollbar(f1)
 
+listBox = ttk.Treeview(f1)
 Id = Entry(f1); subj = Entry(f1); des = Entry(f1); entered_date = Entry(f1); subName = Entry(f1); shortSub = Entry(f1)
 Id = Entry(f1); subj = Entry(f1); des = Entry(f1); entered_date = Entry(f1); subName = Entry(f1); shortSub = Entry(f1)
 sub = Entry(f1); topic = Entry(f1); time = Entry(f1)
