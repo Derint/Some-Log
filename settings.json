@@ -1,6 +1,5 @@
-<<<<<<< HEAD
 {
-      "table_name": "C:\\Users\\Cleophas Rebello\\Desktop\\SomeLog\\For Git Hub./Database/Math.db",
+      "table_name": "D:\\Language\\Python\\SomeLog\\For Git Hub./Database/Hello world.db",
       "color": {
             "BACKGROUND_COLOR": "#1D1B1B",
             "CHILD_COLOR": "#ADD8E6",
@@ -28,35 +27,4 @@
             "ALERT_FONT": "SimSun",
             "text style for alert": "Bahnschrift | SimSun | Verdana"
       }
-=======
-{
-      "table_name": "C:\\Users\\Cleophas Rebello\\Desktop\\SomeLog\\Refactored Code./Database/Maths.db",
-      "color": {
-            "BACKGROUND_COLOR": "#1D1B1B",
-            "CHILD_COLOR": "#ADD8E6",
-            "MAIN_BTN_COLOR": "#F79862",
-            "TABLE_NOT_FND_COLOR": "#CCF381",
-            "RESTRICT_LEN_COLOR": "#EC4D37",
-            "SAME_NAME_COLOR": "#0a3fff",
-            "MENU_COLORS": "#7393B3",
-            "DATABASE_TXT_COLOR": "#140b06",
-            "ENTRY_COLOR": "#e8ebe8",
-            "TABLE_TITLE_COLOR": "#00FFFF",
-            "STRIP_COL_ODD": "white",
-            "STRIP_COL_EVN": "light green",
-            "SUCCESS_COLOR": "#0bd912",
-            "TEXT_COLOR": "black",
-            "ERROR_COLOR": "red",
-            "CheckFont": "Book something  | Bahnschrift SemiLight",
-            "RES_ME_COLOR": "white"
-      },
-      "text": {
-            "MAIN_HEADING_FONT": "Times New Roman",
-            "SUB_HEADING_FONT": "Lucida Console",
-            "HEADING_FONT": "Yu Mincho",
-            "TEXT_FONT": "Roboto",
-            "ALERT_FONT": "SimSun",
-            "text style for alert": "Bahnschrift | SimSun | Verdana"
-      }
->>>>>>> 0803ae3421cf4167e413459fc2c4375cfa21dc89
 }
