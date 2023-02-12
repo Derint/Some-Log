@@ -33,8 +33,8 @@ def extractData(M, e_id):
 def formatName(name, rep):
     return name.replace(rep, "").replace("_", " ").strip()
 
-usrname = 'rebellocleophas731@gmail.com'
-passwd = "gcniboutzdkzfyyg"
+usrname = ''
+passwd = ""
 
 M = Authenticate(usrname, passwd)
 M.select('inbox')
