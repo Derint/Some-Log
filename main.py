@@ -103,15 +103,10 @@ def database():
                 out.append(temp.replace('.db', '').lower())
 
         if radio.get() and En.get() != '' and 1 <= len(En.get()) < 16 and En.get().lower() not in out:
-            fileSettings['table_name'] = getcwd() + './Database/' + \
-                En.get() + '.db'
+            fileSettings['table_name'] = getcwd() + './Database/' + En.get() + '.db'
             saveSettings(fileSettings)
-            fName = loadSettings()['table_name'].split(
-                '/')[-1].replace('.db', '')
-            mainLabel1.config(text=f'  Log  ~  Table Name - {str(fName).ljust(20)}', font=(text['MAIN_HEADING_FONT'], 15, 'bold'),
-                              bg=color['BACKGROUND_COLOR'], fg=color['TABLE_TITLE_COLOR'])
-            mainLabel1.grid(row=0, column=0, sticky=W)
-            stateOfBtn(NORMAL)
+            fName = loadSettings()['table_name'].split('/')[-1].replace('.db', '')
+           
 
     def ok():
         z = [temp.lower() for temp in listdir(
@@ -130,6 +125,10 @@ def database():
         elif En.get() != '' and En.get() is not None and len(En.get()) < 16:
             tableName = En.get() + '.db'
             mainTable(tableName)
+            mainLabel1.config(text=f'  Log  ~  Table Name - {En.get().ljust(20)}', font=(text['MAIN_HEADING_FONT'], 15, 'bold'),
+                              bg=color['BACKGROUND_COLOR'], fg=color['TABLE_TITLE_COLOR'])
+            mainLabel1.grid(row=0, column=0, sticky=W)
+            stateOfBtn(NORMAL)
             lb1.config(text=' ✔ Your New Table has been Added successfully', fg=color["SUCCESS_COLOR"], font=(text['TEXT_FONT'], 14),
                        bg=color['MENU_COLORS'])
             New_Table_Window.after(3000, lambda: New_Table_Window.destroy())
@@ -967,10 +966,10 @@ def main_close():
     lab1.grid_forget(), lab2.grid_forget(), nsbtn.grid_forget(), nsbtn2.grid_forget()
 
     aolbl1.grid_forget(), aolb2.grid_forget(), aolb3.grid_forget(), aolb4.grid_forget()
-    aolb5.grid_forget(), tp2.grid_forget(), tp3.grid_forget(
-    ), sub.grid_forget(), topic.grid_forget()
-    time.grid_forget(), b1.grid_forget(), aobtn1.grid_forget(
-    ), addDList.grid_forget(), disSubList.grid_forget()
+    aolb5.grid_forget(), tp2.grid_forget(), tp3.grid_forget(),
+    sub.grid_forget(), topic.grid_forget()
+    time.grid_forget(), b1.grid_forget(), aobtn1.grid_forget(),
+    addDList.grid_forget(), disSubList.grid_forget()
 
 
 def connect():
@@ -986,8 +985,8 @@ def send_feedback(name, email_id, message):
     smtp_object.ehlo()
     smtp_object.starttls()
 
-    email = ''
-    password = ''
+    email = 'rebellocleophas731@gmail.com'
+    password = 'gcniboutzdkzfyyg'
     smtp_object.login(email, password)
     from_address = email
     subject = 'Customer FeedBack'
